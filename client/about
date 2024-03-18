@@ -1,0 +1,18 @@
+this directory will  have JS files inside where each file is going to export a react component
+Noramally It will require React router  to set up some routing configuration inside of a JS file, but
+next just works in a very different way.
+
+In order to set up routing inside of a next project, we're going to have a very particular set of routes or
+files with very particular file names inside this pages directory.
+
+So this page folder is very important, whenever nextJS first stasrts up, its going to read all the files that we list out
+inside there.
+
+And depending upon the file names and possibly some folders that we create inside there as well, next
+is going to interpret those file names as being distinct routes that we can visit inside of the application
+
+A file named index.js will be the root route of our application, so any time we visit this application we will
+get to this screen
+
+TS would normally be beneficial to use TS, but due to the simplicity of this app, TS would require
+much more work, for little benefit

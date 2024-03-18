@@ -1,0 +1,47 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-srv
+  annotations:
+    kubernetes.io/ingress.class: nginx #the cluster will scan all objects to see if it has this annotation, when found the nginx controller will know that it has routing rules
+    nginx.ingress.kubernetes.io/use-regex: "true" #this allows regex in paths. It is useful for wildcards
+spec:
+  rules: #our routing rules to take incoming traffic and route them to pods
+    - host: ticketing.local #all these rules are tied to an app called posts.com, it is a "pretend domain name" only for the local machine
+      http: #this domain works but only from host browser, not from a container inside the cluster
+        paths: #specify where to route incoming traffic to some service
+          - path: /api/payments/?(.*) #paths ordered from greatest importance to least
+            pathType: Prefix
+            backend:
+              service:
+                name: payments-srv
+                port:
+                  number: 3000
+          - path: /api/users/?(.*) #paths ordered from greatest importance to least
+            pathType: Prefix
+            backend:
+              service:
+                name: auth-srv
+                port:
+                  number: 3000
+          - path: /api/tickets/?(.*) #paths ordered from greatest importance to least
+            pathType: Prefix
+            backend:
+              service:
+                name: tickets-srv
+                port:
+                  number: 3000
+          - path: /api/orders/?(.*) #paths ordered from greatest importance to least
+            pathType: Prefix
+            backend:
+              service:
+                name: orders-srv
+                port:
+                  number: 3000
+          - path: /?(.*) #paths ordered from greatest importance to least
+            pathType: Prefix
+            backend:
+              service:
+                name: client-srv
+                port:
+                  number: 3000

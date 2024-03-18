@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: expiration-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: expiration
+  template:
+    metadata:
+      labels:
+        app: expiration
+    spec:
+      containers:
+        - name: expiration
+          image: sandersonii/expiration
+          env: #set environment, useful for secrets
+            - name: NATS_CLIENT_ID #we need to tell kubernetes to use the pod name as the client ID
+              valueFrom:  #this is useful so we can refer an event to a pod, and they will also be unique
+                fieldRef:
+                  fieldPath: metadata.name #this will pull the pod name and assign it as an ENV VAR for NATS_CLIENT_ID
+            - name: NATS_URL
+              value: 'http://nats-srv:4222'
+            - name: NATS_CLUSTER_ID
+              value: ticketing
+            - name: REDIS_HOST #allows us to connect to redis host
+              value: 'expiration-redis-srv'
+#no ports needed because service is NOT gonna be contacted by any other parts of our app directly
+#thus no service is needed

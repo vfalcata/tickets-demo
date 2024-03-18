@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth
+  template:
+    metadata:
+      labels:
+        app: auth
+    spec:
+      containers:
+        - name: auth
+          image: sandersonii/auth
+          env: #set environment, useful for secrets
+            - name: JWT_KEY #name used to access in the actual containers
+              valueFrom:
+                secretKeyRef: #reference some object to get a variable from a secret object
+                  name: jwt-secret #the object whoch stores the secret. If this does not exist the pod will NOT start
+                  key: JWT_KEY #actual key name of the secret we stored
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-srv
+spec: #default service is ClusterIP
+  selector:
+    app: auth
+  ports:
+    - name: auth
+      protocol: TCP
+      port: 3000
+      targetPort: 3000

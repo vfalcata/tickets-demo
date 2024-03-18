@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payments-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: payments
+  template:
+    metadata:
+      labels:
+        app: payments
+    spec:
+      containers:
+        - name: payments
+          image: sandersonii/payments
+          env: #set environment, useful for secrets
+            - name: NATS_CLIENT_ID #we need to tell kubernetes to use the pod name as the client ID
+              valueFrom:  #this is useful so we can refer an event to a pod, and they will also be unique
+                fieldRef:
+                  fieldPath: metadata.name #this will pull the pod name and assign it as an ENV VAR for NATS_CLIENT_ID
+            - name: NATS_URL
+              value: 'http://nats-srv:4222'
+            - name: NATS_CLUSTER_ID
+              value: ticketing
+            - name: MONGO_URI #Use this configuration so that we can just call this env variable instead of manually changing it in the source code
+              value: 'mongodb://payments-mongo-srv:27017/payments'
+            - name: JWT_KEY #name used to access in the actual containers
+              valueFrom:
+                secretKeyRef: #reference some object to get a variable from a secret object
+                  name: jwt-secret #the object whoch stores the secret. If this does not exist the pod will NOT start
+                  key: JWT_KEY #actual key name of the secret we stored
+            - name: STRIPE_KEY #name used to access in the actual containers
+              valueFrom:
+                secretKeyRef: #reference some object to get a variable from a secret object
+                  name: stripe-secret #the object whoch stores the secret. If this does not exist the pod will NOT start
+                  key: STRIPE_KEY #actual key name of the secret we stored
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: payments-srv
+spec: #default service is ClusterIP
+  selector:
+    app: payments
+  ports:
+    - name: payments
+      protocol: TCP
+      port: 3000
+      targetPort: 3000

@@ -1,0 +1,59 @@
+apiVersion: skaffold/v2alpha3
+kind: Config
+deploy:
+  kubectl:
+    manifests:
+      - ./infra/k8s/*
+      - ./infra/k8s-dev/* #add dev based configs as well
+build:
+  local:
+    push: false
+  artifacts:
+    - image: sandersonii/auth
+      context: auth
+      docker:
+        dockerfile: Dockerfile
+      sync: #files to watch and sync
+        manual:
+          - src: 'src/**/*.ts' #sorce, anything with .ts in src
+            dest: . #path inside container, the WORKDIR
+    - image: sandersonii/client
+      context: client
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: '**/*.js'
+            dest: .
+    - image: sandersonii/tickets
+      context: tickets
+      docker:
+        dockerfile: Dockerfile
+      sync: #files to watch and sync
+        manual:
+          - src: 'src/**/*.ts' #sorce, anything with .ts in src
+            dest: . #path inside container, the WORKDIR
+    - image: sandersonii/orders
+      context: orders
+      docker:
+        dockerfile: Dockerfile
+      sync: #files to watch and sync
+        manual:
+          - src: 'src/**/*.ts' #sorce, anything with .ts in src
+            dest: . #path inside container, the WORKDIR
+    - image: sandersonii/expiration
+      context: expiration
+      docker:
+        dockerfile: Dockerfile
+      sync: #files to watch and sync
+        manual:
+          - src: 'src/**/*.ts' #sorce, anything with .ts in src
+            dest: . #path inside container, the WORKDIR
+    - image: sandersonii/payments
+      context: payments
+      docker:
+        dockerfile: Dockerfile
+      sync: #files to watch and sync
+        manual:
+          - src: 'src/**/*.ts' #sorce, anything with .ts in src
+            dest: . #path inside container, the WORKDIR

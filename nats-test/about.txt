@@ -1,0 +1,1 @@
+This module is for example and lesson purposes for NATS
